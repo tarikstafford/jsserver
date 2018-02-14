@@ -45,10 +45,6 @@ internal struct RideController {
         let user = try req.parameters.next(User.self)
         let ride = try req.parameters.next(Ride.self)
         
-        guard let userIdString = user.id?.string else {
-            throw Abort.invalid("holder for INVALID id")
-        }
-        
         if ride.seatsAvailable > 0 {
             if ride.hostId == user.id {
                 throw Abort.invalid("holder for HOST cannot be PASSENGER")
@@ -56,11 +52,13 @@ internal struct RideController {
                 throw Abort.invalid("holder for USER IS ALREADY PASSENGER")
             } else {
                 try ride.passengers.add(user)
+                ride.seatsAvailable = ride.seatsAvailable - 1
+                try ride.save()
                 return ("\(user.name) has succesfully joined the ride to \(ride.destinationName)")
             }
+        } else {
+            throw Abort.invalid("No Seats Available")
         }
-        
-        return ("Could not add Rider")
     }
     
     private func getPassengers(_ req: Request) throws -> ResponseRepresentable {

@@ -22,6 +22,7 @@ internal struct UserController {
         let group = drop.grouped("api", "users")
         group.get(handler: getAllUsers)
         group.get(User.parameter, "hostedRides", handler: getUserHostedRides)
+        group.get(User.parameter, "allRides", handler: getUserRides)
         group.post(handler: addUser)
         
     }
@@ -34,7 +35,7 @@ internal struct UserController {
     private func addUser(_ req: Request) throws -> ResponseRepresentable {
         
         guard let json = req.json else { throw Abort.badRequest }
-        let user = try User.init(json: json)
+        let user = try User.init(json: json, drop: drop)
         try user.save()
         return try user.makeJSON()
     }
@@ -44,6 +45,13 @@ internal struct UserController {
         let user = try req.parameters.next(User.self)
         return try user.hostedRides.all().makeJSON()
         
+    }
+    
+    private func getUserRides(_ req: Request) throws -> ResponseRepresentable {
+        
+        let user = try req.parameters.next(User.self)
+        let rides = try user.addedRides.all()
+        return try rides.makeJSON()
     }
     
 }

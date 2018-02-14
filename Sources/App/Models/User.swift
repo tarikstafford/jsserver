@@ -8,6 +8,7 @@
 import Vapor
 import FluentProvider
 import Validation
+import Stripe
 
 final class User: Model {
     
@@ -17,6 +18,7 @@ final class User: Model {
     var password: String
     var email: String
     var name: String
+    let stripeId: String
     
     struct Keys {
         static let id = "user_id"
@@ -24,14 +26,16 @@ final class User: Model {
         static let password = "password"
         static let email = "email"
         static let name = "name"
+        static let stripeId = "stripe_id"
     }
     
     // MARK: Initializers
-    init(username: String, password: String, email: String, name: String) {
+    init(username: String, password: String, email: String, name: String, stripeId: String = "") {
         self.username = username
         self.password = password
         self.email = email
         self.name = name
+        self.stripeId = stripeId
     }
     
     init(row: Row) throws {
@@ -39,9 +43,10 @@ final class User: Model {
         self.password = try row.get(Keys.password)
         self.email = try row.get(Keys.email)
         self.name = try row.get(Keys.name)
+        self.stripeId = try row.get(Keys.stripeId)
     }
     
-    init(json: JSON) throws {
+    init(json: JSON, drop: Droplet) throws {
         
         
         let passwordValidator = FieldLengthValidator.init(min: 8, max: 30)
@@ -52,10 +57,14 @@ final class User: Model {
         guard let email:   String = try json.get(Keys.email), EmailValidator().isValid(email) else { throw Abort.invalid("email") }
         guard let name:   String = try json.get(Keys.name), nameValidator.isValid(name) else { throw Abort.invalid("name") }
         
+        let customer = try drop.stripe?.customer.create(email: email).serializedResponse()
+        guard let stripeId = customer?.id else { throw Abort.invalid("stripeId")}
+        
         self.username = username
         self.password = password
         self.email = email
         self.name = name
+        self.stripeId = stripeId
     }
  
     func makeRow() throws -> Row {
@@ -64,6 +73,7 @@ final class User: Model {
         try row.set(Keys.password, self.password)
         try row.set(Keys.email, self.email)
         try row.set(Keys.name, self.name)
+        try row.set(Keys.stripeId, self.stripeId)
         return row
     }
 }
@@ -77,6 +87,7 @@ extension User: JSONRepresentable {
         try json.set(Keys.username, username)
         try json.set(Keys.email, email)
         try json.set(Keys.name, name)
+        try json.set(Keys.stripeId, stripeId)
         
         return json
     }
@@ -92,6 +103,7 @@ extension User: Preparation {
             builder.string(Keys.password)
             builder.string(Keys.email)
             builder.string(Keys.name)
+            builder.string(Keys.stripeId)
         })
     }
     
@@ -108,7 +120,7 @@ extension User {
 }
 
 extension User {
-    var allRides: Siblings<User, Ride, Pivot<User, Ride>> {
+    var addedRides: Siblings<User, Ride, Pivot<User, Ride>> {
         return siblings()
     }
 }

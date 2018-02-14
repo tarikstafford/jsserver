@@ -155,6 +155,15 @@
         }
       },
       {
+        "package": "Stripe",
+        "repositoryURL": "https://github.com/vapor-community/stripe.git",
+        "state": {
+          "branch": null,
+          "revision": "0d096962b49eaa199bfc5d7717aaeff64ada498f",
+          "version": "1.0.0"
+        }
+      },
+      {
         "package": "TLS",
         "repositoryURL": "https://github.com/vapor/tls.git",
         "state": {
