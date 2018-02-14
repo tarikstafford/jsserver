@@ -34,7 +34,7 @@ internal struct UserController {
         
         guard let json = req.json else { throw Abort.badRequest }
         
-        let user = try User.init(json: json, drop: drop)
+        let user = try User.init(json: json)
         
         try user.save()
         

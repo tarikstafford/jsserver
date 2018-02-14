@@ -33,7 +33,7 @@ final class User: Model {
         self.name = try row.get(Keys.name)
     }
     
-    init(json: JSON, drop: Droplet) throws {
+    init(json: JSON) throws {
         
         
         let passwordValidator = FieldLengthValidator.init(min: 8, max: 30)
