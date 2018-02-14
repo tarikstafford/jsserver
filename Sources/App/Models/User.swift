@@ -19,11 +19,19 @@ final class User: Model {
     var name: String
     
     struct Keys {
-        static let id = "id"
+        static let id = "user_id"
         static let username = "username"
         static let password = "password"
         static let email = "email"
         static let name = "name"
+    }
+    
+    // MARK: Initializers
+    init(username: String, password: String, email: String, name: String) {
+        self.username = username
+        self.password = password
+        self.email = email
+        self.name = name
     }
     
     init(row: Row) throws {
@@ -49,7 +57,7 @@ final class User: Model {
         self.email = email
         self.name = name
     }
-    
+ 
     func makeRow() throws -> Row {
         var row = Row()
         try row.set(Keys.username, self.username)
@@ -93,3 +101,14 @@ extension User: Preparation {
     
 }
 
+extension User {
+    var hostedRides: Children<User, Ride> {
+        return children()
+    }
+}
+
+extension User {
+    var allRides: Siblings<User, Ride, Pivot<User, Ride>> {
+        return siblings()
+    }
+}

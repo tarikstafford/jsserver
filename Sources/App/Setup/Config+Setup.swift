@@ -20,5 +20,6 @@ extension Config {
     private func setupPreparations() throws {
         preparations.append(User.self)
         preparations.append(Ride.self)
+        preparations.append(Pivot<Ride, User>.self)
     }
 }

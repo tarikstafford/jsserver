@@ -50,8 +50,8 @@ final class Ride: Model {
     
     // MARK: Keys
     struct Keys {
-        static let id = "id"
-        static let hostId = "hostId"
+        static let id = "ride_id"
+        static let hostId = "user_id"
         static let seatsAvailable = "seatsAvailable"
         static let priceString = "priceString"
         static let priceCurrency = "priceCurrency"
@@ -298,6 +298,11 @@ extension Ride {
     }
 }
 
+extension Ride {
+    var passengers: Siblings<Ride, User, Pivot<Ride, User>> {
+        return siblings()
+    }
+}
 
 
 

@@ -13,6 +13,4 @@ extension Abort {
         let reason = "Invalid \(invalidField)."
         return Abort(.badRequest, reason: reason)
     }
-    
-    
 }
